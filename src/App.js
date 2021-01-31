@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// utils
+import initialiseChessBoard from './helpers/board-initialiser.js';
 // custom components
 import Game from './components/game.js';
 import Footer from './components/Footer';
@@ -18,16 +20,21 @@ import FormLabel from '@material-ui/core/FormLabel';
 // Material UI Icons
 import GitHubIcon from '@material-ui/icons/GitHub';
 
-function PickStarterForm() {
-  const [startingColor, setStartingColor] = React.useState('white');
+// constants
+const onePlayerDefaultStaringColor = 'white';
+const aiDefaultDiffulty = '5';
+
+function PickStarterForm({ colorStartCallback }) {
+  const [startingColor, setStartingColor] = React.useState(onePlayerDefaultStaringColor);
 
   const handleChange = (event) => {
     setStartingColor(event.target.value);
+    colorStartCallback(event.target.value);
   };
 
   return (
     <FormControl>
-      <FormLabel>Player Starting Color</FormLabel>
+      <FormLabel>Player Color</FormLabel>
       <RadioGroup value={startingColor} onChange={handleChange}>
         <FormControlLabel value={'white'} control={<Radio />} label="White (first)" />
         <FormControlLabel value={'black'} control={<Radio />} label="Black" />
@@ -36,11 +43,13 @@ function PickStarterForm() {
   )
 }
 
-function AIDifficultyForm() {
-  const [minimaxDepth, setMinimaxDepth] = React.useState('5');
+function AIDifficultyForm({ aiDifficultyCallback }) {
+  const [minimaxDepth, setMinimaxDepth] = React.useState(aiDefaultDiffulty);
 
   const handleChange = (event) => {
     setMinimaxDepth(event.target.value);
+    console.log(event.target.value)
+    aiDifficultyCallback(event.target.value);
   };
 
   return (
@@ -57,14 +66,54 @@ function AIDifficultyForm() {
 
 
 function App() {
-  const [numPlayers, setNumPlayer] = useState('p-v-p');
+  const [numPlayers, setNumPlayer] = useState('2');
+  let aiPlayObj = {};
+
+  const [initialGameParams, setInitialGameParams] = useState({
+    squares: initialiseChessBoard(),
+    whiteFallenSoldiers: [],
+    blackFallenSoldiers: [],
+    player: 1,
+    sourceSelection: -1,
+    status: '',
+    turn: 'white',
+    numPlayers: parseInt(numPlayers, 10)
+  });
+  
+  useEffect(() => {
+    // default values for when numPlayers is changed
+    if (numPlayers === '0') {
+      aiPlayObj = {
+        aiOneDifficulty: aiDefaultDiffulty,
+        aiTwoDifficulty: aiDefaultDiffulty
+      }
+    } else if (numPlayers === '1') {
+      aiPlayObj = {
+        playerColor: onePlayerDefaultStaringColor,
+        aiDifficulty: aiDefaultDiffulty
+      }
+    } else {
+      aiPlayObj = {}
+    }
+  })
 
   const handleChange = (event) => {
+    // react hooks synchronous here: https://stackoverflow.com/questions/53048495/does-react-batch-state-update-functions-when-using-hooks
     setNumPlayer(event.target.value);
   };
 
   const newGame = (event) => {
-    console.log("NEW GAME " + event.target.value);
+    setInitialGameParams({
+      squares: initialiseChessBoard(),
+      whiteFallenSoldiers: [],
+      blackFallenSoldiers: [],
+      player: 1,
+      sourceSelection: -1,
+      status: '',
+      turn: 'white',
+      numPlayers: parseInt(numPlayers, 10),
+      aiPlayObj: aiPlayObj
+    })
   }
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
@@ -74,29 +123,41 @@ function App() {
       </IconButton>
       <br />
       <Box display="flex" justifyContent="center" alignItems="start">
-        <Game />
-        <Box display="flex" flexDirection="column" justifyContent="center">
+        <Game initialGameParams={initialGameParams} />
+        <Box display="flex" flexDirection="column" justifyContent="center" style={{ marginLeft: 50 }}>
           <FormControl>
             <FormLabel>Players</FormLabel>
             <RadioGroup value={numPlayers} onChange={handleChange}>
-              <FormControlLabel value={'ai-v-ai'} control={<Radio />} label="AI vs AI" />
-              <FormControlLabel value={'p-v-ai'} control={<Radio />} label="Player vs AI" />
-              <FormControlLabel value={'p-v-p'} control={<Radio />} label="Player vs Player" />
+              <FormControlLabel value={'0'} control={<Radio />} label="AI vs AI" />
+              <FormControlLabel value={'1'} control={<Radio />} label="Player vs AI" />
+              <FormControlLabel value={'2'} control={<Radio />} label="Player vs Player" />
             </RadioGroup>
           </FormControl>
           {
-            numPlayers === 'p-v-ai' && 
+            numPlayers === '1' &&
             <Box display="flex" justifyContent="center">
-              <PickStarterForm />
-              <AIDifficultyForm />
+              <PickStarterForm colorStartCallback={(val) => aiPlayObj = {
+                ...aiPlayObj, 
+                playerColor: val
+              }} />
+              <AIDifficultyForm aiDifficultyCallback={(val) => aiPlayObj = {
+                ...aiPlayObj,
+                aiDifficulty: val
+              }} />
             </Box>
           }
           {
-            numPlayers === 'ai-v-ai' &&
-              <Box display="flex" justifyContent="center" alignItems="center">
-                <AIDifficultyForm />
-                <AIDifficultyForm />
-              </Box>
+            numPlayers === '0' &&
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <AIDifficultyForm aiDifficultyCallback={(val) => aiPlayObj = {
+                ...aiPlayObj,
+                aiOneDifficulty: val
+              }} />
+              <AIDifficultyForm aiDifficultyCallback={(val) => aiPlayObj = {
+                ...aiPlayObj,
+                aiTwoDifficulty: val
+              }} />
+            </Box>
           }
           <Button variant="contained" color="primary" onClick={newGame}>New Game</Button>
         </Box>

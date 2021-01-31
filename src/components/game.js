@@ -1,23 +1,23 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import '../index.css';
 import Board from './board.js';
 import King from '../pieces/king'
 import FallenSoldierBlock from './fallen-soldier-block.js';
-import initialiseChessBoard from '../helpers/board-initialiser.js';
 
-export default class Game extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      squares: initialiseChessBoard(),
-      whiteFallenSoldiers: [],
-      blackFallenSoldiers: [],
-      player: 1,
-      sourceSelection: -1,
-      status: '',
-      turn: 'white'
-    }
+export default class Game extends Component {
+  constructor(props) {
+    super(props);
+    this.state = props.initialGameParams;
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    
+    // if (nextProps.initialGameParams !== this.state) {
+    // }
+    console.log(this.state)
+    this.setState(nextProps.initialGameParams);
   }
 
   handleClick(i) {
@@ -133,7 +133,7 @@ export default class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-          <h3>Turn</h3>
+          <h3 id="player-turn-label">Turn</h3>
           <div id="player-turn-box" style={{ backgroundColor: this.state.turn }}>
 
           </div>
