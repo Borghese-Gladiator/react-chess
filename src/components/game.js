@@ -125,40 +125,30 @@ export default class Game extends React.Component {
   render() {
 
     return (
-      <div>
-        <div className="game">
-          <div className="game-board">
-            <Board
-              squares={this.state.squares}
-              onClick={(i) => this.handleClick(i)}
+      <div className="game">
+        <div className="game-board">
+          <Board
+            squares={this.state.squares}
+            onClick={(i) => this.handleClick(i)}
+          />
+        </div>
+        <div className="game-info">
+          <h3>Turn</h3>
+          <div id="player-turn-box" style={{ backgroundColor: this.state.turn }}>
+
+          </div>
+          <div className="game-status">{this.state.status}</div>
+
+          <div className="fallen-soldier-block">
+
+            {<FallenSoldierBlock
+              whiteFallenSoldiers={this.state.whiteFallenSoldiers}
+              blackFallenSoldiers={this.state.blackFallenSoldiers}
             />
+            }
           </div>
-          <div className="game-info">
-            <h3>Turn</h3>
-            <div id="player-turn-box" style={{ backgroundColor: this.state.turn }}>
 
-            </div>
-            <div className="game-status">{this.state.status}</div>
-
-            <div className="fallen-soldier-block">
-
-              {<FallenSoldierBlock
-                whiteFallenSoldiers={this.state.whiteFallenSoldiers}
-                blackFallenSoldiers={this.state.blackFallenSoldiers}
-              />
-              }
-            </div>
-
-          </div>
         </div>
-
-        <div className="icons-attribution">
-          <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
-        </div>
-        <ul>
-          <li><a href="https://github.com/TalhaAwan/react-chess" target="_blank" rel="noopener noreferrer">Source Code</a> </li>
-          <li><a href="https://www.techighness.com/post/develop-two-player-chess-game-with-react-js/">Blog Post</a></li>
-        </ul>
       </div>
 
 
